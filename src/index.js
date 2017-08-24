@@ -10,24 +10,27 @@
 />
 */
 export function Loadable(props) {
-  if (typeof props === "function") { // used as mixin...
-    var emit = props;
+  if (typeof props === "function") {
     return {
       state: {
         loadable: {}
       },
       actions: {
         loadable: {
-          loaded: function(state, actions, {name, component}) {
+          loaded: function(state, actions, { name, component }) {
             var newLoadable = {};
             return {
-              loadable: Object.assign({}, state.loadable, newLoadable[name] = component)
+              loadable: Object.assign(
+                {},
+                state.loadable,
+                (newLoadable[name] = component)
+              )
             };
           }
         }
       }
-    }
-  } else { // used as stateless component
+    };
+  } else {
     var state = props.state;
     var actions = props.actions;
     var name = props.name;
@@ -35,15 +38,20 @@ export function Loadable(props) {
     var loaded = props.loaded;
     var loading = props.loading;
     var errorHandler = props.errorHandler;
-    if (state.loadable[name] != null && state.loadable[name].component != null) {
+    if (
+      state.loadable[name] != null &&
+      state.loadable[name].component != null
+    ) {
       return state.loadable[name].component(state, actions);
     } else {
       // loader is thunk returning promise
-      loader().then(function(component) {
-        loaded({ name: name, component: component });
-      }).catch(function(err) {
-        errorHandler(name, err);
-      });
+      loader()
+        .then(function(component) {
+          loaded({ name: name, component: component });
+        })
+        .catch(function(err) {
+          errorHandler(name, err);
+        });
       return loading(state, actions);
     }
   }
