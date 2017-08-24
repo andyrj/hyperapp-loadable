@@ -4,7 +4,7 @@ This package is inspired be react-loadable.  The main difference between the two
 To work around this difference we use a mixin to provide a { loadable: {} } in the state as well as add actions: { loadable: { loaded: () => any }} for triggering an update/re-render after lazy-loaded module is available.
 
 ```jsx
-/* src/test.js */
+/* src/Test.js */
 import { h } from "hyperapp";
 
 export function Test(state, actions) {
@@ -25,8 +25,8 @@ app({
     return (<Loadable 
       state={state}
       actions={actions}
-      name={"/test"}
-      loader={() => import("./test")}
+      name={"/Test"}
+      loader={() => import("./Test")}
       loading={Loading}
       loaded={actions.loadable.loaded}
       errorHandler={(name, err) => console.error(`hyperapp-loadable error: ${err}`)}
