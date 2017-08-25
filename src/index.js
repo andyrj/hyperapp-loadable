@@ -3,11 +3,11 @@ import webpackRequireWeak from "webpack-require-weak";
 import { inspect } from "import-inspector";
 
 function capture(fn) {
-  let reported = [];
-  let stopInspecting = inspect(metadata => reported.push(metadata));
-  let promise = fn();
+  var reported = [];
+  var stopInspecting = inspect(function(metadata){reported.push(metadata)});
+  var promise = fn();
   stopInspecting();
-  return { promise, reported };
+  return { promise: promise, reported: reported };
 }
 
 function mixin() {
@@ -17,7 +17,9 @@ function mixin() {
     },
     actions: {
       loadable: {
-        loaded: function(state, actions, { name, status }) {
+        loaded: function(state, actions, data) {
+          var name = data.name;
+          var status = data.status;
           var newLoadable = {};
           newLoadable[name] = status;
           return {
@@ -35,9 +37,11 @@ function load(name, loadable, loader, loaded) {
     loaded: null,
     error: null
   };
-  var { promise, reported } = capture(function() {
+  var result = capture(function() {
     return loader();
   });
+  var promise = result.promise;
+  var reported = result.reported;
 
   if (reported.length > 1) {
     throw new Error(
@@ -67,12 +71,14 @@ function load(name, loadable, loader, loaded) {
     .then(function(component) {
       status.loading = false;
       status.loaded = component.default;
-      loaded({ name, status });
+      var data = { name: name, status: status };
+      loaded(data);
     })
     .catch(function(err) {
       status.loading = false;
       status.error = err;
-      loaded({ name, status });
+      var data = { name: name, status: status };
+      loaded(data);
     });
 }
 
