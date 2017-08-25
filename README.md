@@ -30,7 +30,6 @@ app({
       loader={() => import("./Test")}
       loading={Loading}
       loaded={actions.loadable.loaded}
-      errorHandler={(name, err) => console.error(`hyperapp-loadable error: ${err}`)}
     />);
   },
   mixins: [Loadable()]
