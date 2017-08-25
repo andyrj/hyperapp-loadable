@@ -32,7 +32,7 @@ app({
       loaded={actions.loadable.loaded}
     />);
   },
-  mixins: [Loadable()]
+  mixins: [Loadable]
 });
 ```
 
