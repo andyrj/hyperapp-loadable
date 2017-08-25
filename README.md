@@ -29,7 +29,7 @@ app({
       name={"/Test"}
       loader={() => import("./Test")}
       loading={Loading}
-      loaded={actions.loadable.loaded}
+      loaded={actions.loadable.loaded} /* not required defaults too actions.loadable.loaded */
     />);
   },
   mixins: [Loadable]

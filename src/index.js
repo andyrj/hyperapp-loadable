@@ -88,7 +88,7 @@ function component(props) {
   var actions = props.actions;
   var name = props.name;
   var loader = props.loader;
-  var loaded = props.loaded;
+  var loaded = props.loaded || actions.loadable.loaded;
   var loading = props.loading;
   if (loadable[name] != null && !loadable[name].loading) {
     return loadable[name].loaded(state, actions);
