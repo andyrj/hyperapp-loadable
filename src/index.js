@@ -1,6 +1,11 @@
-import isWebpackBundle from "is-webpack-bundle";
-import webpackRequireWeak from "webpack-require-weak";
 import { inspect } from "import-inspector";
+
+// pulled in from webpack-require-weak
+function requireWeak(id) {
+  if (__webpack_modules__[id]) {
+    return __webpack_require__(id);
+  }
+}
 
 function capture(fn) {
   var reported = [];
@@ -52,9 +57,9 @@ function load(name, loadable, loader, loaded) {
   var metadata = reported[0] || {};
 
   try {
-    if (isWebpackBundle) {
+    if (typeof __webpack_require__ !== "undefined") { // isWebpackBundle
       if (typeof metadata.webpackRequireWeakId === "function") {
-        status.loaded = webpackRequireWeak(metadata.webpackRequireWeakId());
+        status.loaded = requireWeak(metadata.webpackRequireWeakId());
         if (loadable[name].loaded) status.loading = false;
       }
     } else {

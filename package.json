@@ -1,6 +1,6 @@
 {
   "name": "hyperapp-loadable",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Experimental package to provide react-loadable like behavior to hyperapp",
   "main": "dist/loadable.js",
   "jsnext:main": "src/index.js",
@@ -37,8 +37,6 @@
     "uglify-js": "^2.7.5"
   },
   "dependencies": {
-    "import-inspector": "^2.0.0",
-    "is-webpack-bundle": "^1.0.0",
-    "webpack-require-weak": "^1.0.1"
+    "import-inspector": "^2.0.0"
   }
 }
