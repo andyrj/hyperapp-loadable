@@ -2,6 +2,7 @@ export default function Loadable(config) {
   const defaultTime = config.defaultTime || 200;
   const terminalTime = config.terminalTime || 3000;
   const errorHandler = config.errorHandler;
+  const nodeHandler = config.nodeHandler;
 
   function doErrorHandler(status) {
     if (errorHandler != null && typeof errorHandler === "function") {
@@ -86,16 +87,13 @@ export default function Loadable(config) {
     component: function(props) {
       const { state, actions } = emit("getStateAndActions");
       const loadable = state.loadable;
-      const name = props.name;
-      const loader = props.loader;
+      const { name, loader, loading } = props;
       const loaded = props.loaded || actions.loadable.loaded;
-      const loading = props.loading;
       if (isNode()) {
-        // decide what is best way to make this work in nodejs...
-        // in your server code we need global.import = lib => require(lib);
-        // need to test this...
-        debugger;
-        return loader();
+        if (nodeHandler != null && typeof nodeHandler === "function") {
+          return nodeHandler(loader);
+        }
+        return;
       }
       if (loadable[name] != null && typeof loadable[name] === "function") {
         return loadable[name](state, actions);
