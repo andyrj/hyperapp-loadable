@@ -60,7 +60,7 @@ export default function Loadable(config) {
   }
   let emit;
   return {
-    mixin: function(Emit) {
+    LoadableMixin: function(Emit) {
       emit = Emit;
       return {
         state: {
@@ -84,7 +84,7 @@ export default function Loadable(config) {
         }
       };
     },
-    component: function(props) {
+    Loadable: function(props) {
       const { state, actions } = emit("getStateAndActions");
       const loadable = state.loadable;
       const { name, loader, loading } = props;

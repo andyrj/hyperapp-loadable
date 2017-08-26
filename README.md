@@ -17,7 +17,17 @@ export function Test(state, actions) {
 
 ```jsx
 import { h, app } from "hyperapp";
-import Loadable from "hyperapp-loadable";
+import LoadableSetup from "hyperapp-loadable";
+
+const { LoadableMixin, Loadable } = LoadableSetup({
+  defaultTime: 200, /* default time to display loading component */
+  terminalTime: 3000, /* maximum timeout before throwing error for timing out */
+  /* errorHandler can be provided if you wish to run state clean up or trigger a retry of the dynamic import */
+  errorHandler: ({ name, result }) => console.error(`Loadable: ${name}, error: ${result}`),
+  nodeHandler: () => { /* only needed if doing SSR */
+    // logic to handle babel-plugin-import-inspector like react-loadable goes here...
+  }
+})
 
 const Loading = (state, actions) => <div>{"Loading..."}</div>;
 
@@ -31,7 +41,7 @@ app({
       />
     );
   },
-  mixins: [Loadable]
+  mixins: [LoadableMixin]
 });
 ```
 
