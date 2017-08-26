@@ -1,112 +1,110 @@
-import { inspect } from "import-inspector";
+export default function Loadable(config) {
+  const defaultTime = config.defaultTime || 200;
+  const terminalTime = config.terminalTime || 3000;
+  const errorHandler = config.errorHandler;
 
-// pulled in from webpack-require-weak
-function requireWeak(id) {
-  if (__webpack_modules__[id]) {
-    return __webpack_require__(id);
-  }
-}
-
-function capture(fn) {
-  var reported = [];
-  var stopInspecting = inspect(function(metadata){reported.push(metadata)});
-  var promise = fn();
-  stopInspecting();
-  return { promise: promise, reported: reported };
-}
-
-function mixin() {
-  return {
-    state: {
-      loadable: {}
-    },
-    actions: {
-      loadable: {
-        loaded: function(state, actions, data) {
-          var name = data.name;
-          var status = data.status;
-          var newLoadable = {};
-          newLoadable[name] = status;
-          return {
-            loadable: Object.assign({}, state.loadable, newLoadable)
-          };
-        }
-      }
+  function doErrorHandler(status) {
+    if (errorHandler != null && typeof errorHandler === "function") {
+      errorHandler(status);
     }
-  };
-}
+  }
 
-function load(name, loadable, loader, loaded) {
-  var status = {
-    loading: true,
-    loaded: null,
-    error: null
-  };
-  var result = capture(function() {
-    return loader();
-  });
-  var promise = result.promise;
-  var reported = result.reported;
+  function load(name, loadable, loader, loaded) {
+    let result;
+    let defaultTimeout = setTimeout(() => {
+      defaultTimeout = null;
+      loaded({ name, result });
+    }, defaultTime);
+    const terminalTimeout = setTimeout(() => {
+      result = new Error("Loadable timed out");
+      doErrorHandler({ name, result });
+      loaded({ name, result });
+    }, terminalTime);
 
-  if (reported.length > 1) {
-    throw new Error(
-      "hyperapp-loadable cannot handle more than one import() in each loader"
+    loader()
+      .then(promised => {
+        if (result == null) {
+          if (typeof promised === "function") {
+            result = promised;
+          } else if (
+            promised.default != null &&
+            typeof promised.default === "function"
+          ) {
+            result = promised.default;
+          }
+          clearTimeout(terminalTimeout);
+          if (typeof result === "function" && defaultTimeout == null) {
+            loaded({ name, result });
+          }
+        } else {
+          loaded({ name, result });
+        }
+      })
+      .catch(err => {
+        clearTimeout(terminalTimeout);
+        clearTimeout(defaultTimeout);
+        result = err;
+        doErrorHandler({ name, result });
+        loaded({ name, result });
+      });
+  }
+
+  function isNode() {
+    return (
+      typeof process !== "undefined" &&
+      process.release != null &&
+      (process.release.name.search(/node|io.js/) !== -1 ||
+        typeof process.versions.node !== "undefined")
     );
   }
-
-  var metadata = reported[0] || {};
-
-  try {
-    if (typeof __webpack_require__ !== "undefined") { // isWebpackBundle
-      if (typeof metadata.webpackRequireWeakId === "function") {
-        status.loaded = requireWeak(metadata.webpackRequireWeakId());
-        if (loadable[name].loaded) status.loading = false;
+  let emit;
+  return {
+    mixin: function(Emit) {
+      emit = Emit;
+      return {
+        state: {
+          loadable: {}
+        },
+        actions: {
+          loadable: {
+            loaded: function(state, actions, { name, result }) {
+              let newLoadable = {};
+              newLoadable[name] = result;
+              return {
+                loadable: Object.assign({}, state.loadable, newLoadable)
+              };
+            }
+          }
+        },
+        events: {
+          getStateAndActions(state, actions) {
+            return { state, actions };
+          }
+        }
+      };
+    },
+    component: function(props) {
+      const { state, actions } = emit("getStateAndActions");
+      const loadable = state.loadable;
+      const name = props.name;
+      const loader = props.loader;
+      const loaded = props.loaded || actions.loadable.loaded;
+      const loading = props.loading;
+      if (isNode()) {
+        // decide what is best way to make this work in nodejs...
+        // in your server code we need global.import = lib => require(lib);
+        // need to test this...
+        debugger;
+        return loader();
       }
-    } else {
-      if (typeof metadata.serverSideRequirePath === "string") {
-        status.loading = false;
-        status.loaded = module.require(metadata.serverSideRequirePath);
+      if (loadable[name] != null && typeof loadable[name] === "function") {
+        return loadable[name](state, actions);
+      } else {
+        if (loadable[name] == null) {
+          load(name, loadable, loader, loaded);
+        }
+        return loading(state, actions);
       }
     }
-  } catch (err) {
-    status.error = err;
-  }
-
-  promise
-    .then(function(component) {
-      status.loading = false;
-      status.loaded = component.default;
-      var data = { name: name, status: status };
-      loaded(data);
-    })
-    .catch(function(err) {
-      status.loading = false;
-      status.error = err;
-      var data = { name: name, status: status };
-      loaded(data);
-    });
-}
-
-function component(props) {
-  var state = props.state;
-  var loadable = state.loadable;
-  var actions = props.actions;
-  var name = props.name;
-  var loader = props.loader;
-  var loaded = props.loaded || actions.loadable.loaded;
-  var loading = props.loading;
-  if (loadable[name] != null && !loadable[name].loading) {
-    return loadable[name].loaded(state, actions);
-  } else {
-    load(name, loadable, loader, loaded);
-    return loading(state, actions);
-  }
-}
-
-export default function Loadable(props) {
-  if (typeof props === "function") {
-    return mixin();
-  } else {
-    return component(props);
-  }
+  };
 }

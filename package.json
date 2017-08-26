@@ -35,8 +35,5 @@
     "prettier": "~1.5.3",
     "rollup": "^0.47.6",
     "uglify-js": "^2.7.5"
-  },
-  "dependencies": {
-    "import-inspector": "^2.0.0"
   }
 }

@@ -23,14 +23,13 @@ const Loading = (state, actions) => <div>{"Loading..."}</div>;
 
 app({
   view: (state, actions) => {
-    return (<Loadable 
-      state={state}
-      actions={actions}
-      name={"/Test"}
-      loader={() => import("./Test")}
-      loading={Loading}
-      loaded={actions.loadable.loaded} /* not required defaults too actions.loadable.loaded */
-    />);
+    return (
+      <Loadable 
+        name={"/Test"}
+        loader={() => import("./Test")}
+        loading={Loading}
+      />
+    );
   },
   mixins: [Loadable]
 });
