@@ -4,7 +4,7 @@ export default function Loadable(config) {
   const errorHandler = config.errorHandler;
   const nodeHandler = config.nodeHandler;
 
-  function doErrorHandler(status) {
+  function runErrorHandler(status) {
     if (errorHandler != null && typeof errorHandler === "function") {
       errorHandler(status);
     }
@@ -18,7 +18,7 @@ export default function Loadable(config) {
     }, defaultTime);
     const terminalTimeout = setTimeout(() => {
       result = new Error("Loadable timed out");
-      doErrorHandler({ name, result });
+      runErrorHandler({ name, result });
       loaded({ name, result });
     }, terminalTime);
 
@@ -45,7 +45,7 @@ export default function Loadable(config) {
         clearTimeout(terminalTimeout);
         clearTimeout(defaultTimeout);
         result = err;
-        doErrorHandler({ name, result });
+        runErrorHandler({ name, result });
         loaded({ name, result });
       });
   }
@@ -92,6 +92,8 @@ export default function Loadable(config) {
       if (isNode()) {
         if (nodeHandler != null && typeof nodeHandler === "function") {
           return nodeHandler(loader);
+        } else {
+          runErrorHandler({ name, result: new Error("No nodeHandler was provided to mixin config") });
         }
         return;
       }
