@@ -2,7 +2,7 @@
 *WIP*
 This package is inspired be react-loadable.  The main difference between the two packages is that this package targets hyperapp instead of react and thus does not have stateful components.
 
-To work around this difference we use a mixin to provide a { loadable: {} } in the state as well as add actions: { loadable: { loaded: () => any }} for triggering an update/re-render after lazy-loaded module is available.
+To work around this difference we use a mixin to provide a { loadable: {} } in the state as well as add actions: { loadable: { loaded: () => any }} for triggering an update/re-render after the lazy-loaded module is available.
 
 ```jsx
 /* src/Test.js */
@@ -27,7 +27,7 @@ const { LoadableMixin, Loadable } = LoadableSetup({
   nodeHandler: () => { /* only needed if doing SSR */
     // logic to handle babel-plugin-import-inspector like react-loadable goes here...
   }
-})
+});
 
 const Loading = (state, actions) => <div>{"Loading..."}</div>;
 
