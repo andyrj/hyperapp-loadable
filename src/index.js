@@ -16,12 +16,12 @@ export function load(props) {
   var result = null;
   var defaultTimeout = setTimeout(function() {
     defaultTimeout = null;
-    loaded({ name, result });
+    loaded({ name: name, result: result });
   }, defaultTime);
   var terminalTimeout = setTimeout(function() {
     result = new Error("Loadable timed out");
-    runErrorHandler({ name, result });
-    loaded({ name, result });
+    runErrorHandler({ name: name, result: result });
+    loaded({ name: name, result: result });
   }, terminalTime);
 
   loader()
@@ -37,18 +37,18 @@ export function load(props) {
         }
         clearTimeout(terminalTimeout);
         if (typeof result === "function" && defaultTimeout == null) {
-          loaded({ name, result });
+          loaded({ name: name, result: result });
         }
       } else {
-        loaded({ name, result });
+        loaded({ name: name, result: result });
       }
     })
     .catch(function(err) {
       clearTimeout(terminalTimeout);
       clearTimeout(defaultTimeout);
       result = err;
-      runErrorHandler({ name, result });
-      loaded({ name, result });
+      runErrorHandler({ name: name, result: result });
+      loaded({ name: name, result: result });
     });
 }
 
@@ -70,18 +70,15 @@ export function LoadableMixin(Emit) {
     },
     actions: {
       loadable: {
-        loaded: function(state, actions, { name, result }) {
-          let newLoadable = {};
+        loaded: function(state, actions, data) {
+          var name = data.name;
+          var result = data.result;
+          var newLoadable = {};
           newLoadable[name] = result;
           return {
             loadable: merge(state.loadable, newLoadable)
           };
         }
-      }
-    },
-    events: {
-      getStateAndActions(state, actions) {
-        return { state, actions };
       }
     }
   };
