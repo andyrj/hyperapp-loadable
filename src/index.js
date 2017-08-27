@@ -7,14 +7,12 @@ function runErrorHandler(status) {
   }
 }
 
-export function load({
-  name,
-  loadable,
-  loader,
-  loaded,
-  defaultTime,
-  terminalTime
-}) {
+export function load(props) {
+  var name = props.name;
+  var loader = props.loader;
+  var loaded = props.loaded;
+  var defaultTime = defaultTime;
+  var terminalTime = terminalTime;
   var result = null;
   var defaultTimeout = setTimeout(function() {
     defaultTimeout = null;
@@ -111,12 +109,11 @@ export function Loadable(props) {
   } else {
     if (loadable[name] == null) {
       load({
-        name,
-        loader,
-        loaderProps,
-        loaded,
-        defaultTime,
-        terminalTime
+        name: name,
+        loader: loader,
+        loaded: loaded,
+        defaultTime: defaultTime,
+        terminalTime: terminalTime
       });
     }
     return loading(loadingProps);
