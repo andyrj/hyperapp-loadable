@@ -99,8 +99,7 @@ export function Loadable(props) {
   }
   if (
     loadable[name] != null &&
-    loadable[name].resolved != null &&
-    typeof loadable[name].resolved === "function"
+    typeof loadable[name] === "function"
   ) {
     return loadable[name].resolved(loaderProps);
   } else {
