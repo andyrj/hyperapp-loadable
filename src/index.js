@@ -89,14 +89,6 @@ export default function Loadable(config) {
       const loadable = state.loadable;
       const { name, loader, loading } = props;
       const loaded = props.loaded || actions.loadable.loaded;
-      if (isNode()) {
-        if (nodeHandler != null && typeof nodeHandler === "function") {
-          return nodeHandler(loader);
-        } else {
-          runErrorHandler({ name, result: new Error("No nodeHandler was provided to mixin config") });
-        }
-        return;
-      }
       if (loadable[name] != null && typeof loadable[name] === "function") {
         return loadable[name](state, actions);
       } else {

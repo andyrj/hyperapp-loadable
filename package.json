@@ -1,6 +1,6 @@
 {
   "name": "hyperapp-loadable",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Experimental package to provide react-loadable like behavior to hyperapp",
   "main": "dist/loadable.js",
   "jsnext:main": "src/index.js",
