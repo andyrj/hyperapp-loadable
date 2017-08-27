@@ -17,14 +17,7 @@ export function Test(state, actions) {
 
 ```jsx
 import { h, app } from "hyperapp";
-import LoadableSetup from "hyperapp-loadable";
-
-const { LoadableMixin, Loadable } = LoadableSetup({
-  defaultTime: 200, /* default time to display loading component */
-  terminalTime: 3000, /* maximum timeout before throwing error for timing out */
-  /* errorHandler can be provided if you wish to run state clean up or trigger a retry of the dynamic import */
-  errorHandler: ({ name, result }) => console.error(`Loadable: ${name}, error: ${result}`)
-});
+import { LoadableMixin, Loadable, load } from "hyperapp-loadable";
 
 const Loading = (state, actions) => <div>{"Loading..."}</div>;
 
@@ -32,14 +25,40 @@ app({
   view: (state, actions) => {
     return (
       <Loadable 
-        name={"/Test"}
-        loader={() => import("./Test")}
-        loading={Loading}
+        name={"/Test"} // unique key for the result of loader to be stored under state.loadable[name]
+        loader={() => import("./Test")} // thunk which returns a promise that resolves to a stateless component
+        loading={Loading} // component to display while loading the above loader thunk...
+        defaultTime={200} // default 200ms time spent displaying loading
+        terminalTime={3000} // default 3 second error timeout
+        errorHandler={ // could be used to clear cache and retry on failures etc...
+          ({ name, result }) => console.error(`Loadable: ${name}, error: ${result}`)
+        }
       />
     );
   },
   mixins: [LoadableMixin]
 });
+```
+
+* NOTE on SSR
+```
+/* SSR needs a few things special for this to all work from within nodejs...
+   - you will need to add babel-plugin-dynamic-import-node to your babel config for your server bundle
+   - const defaultTime = isServer() ? -1 : 200;
+     const terminalTime = isServer() ? -1 : 3000;
+     set default timeouts to -1 so that setTimeout's do not trigger in your server side renders...
+   - be sure to load() all your components needed for a route prior to calling app({...}) then it will   all just work, YMMV
+
+   // example of isServer used in above SSR setup...
+   const isServer() => {
+     return (
+      typeof process !== "undefined" &&
+      process.release != null &&
+      (process.release.name.search(/node|io.js/) !== -1 ||
+        typeof process.versions.node !== "undefined")
+    );
+   }
+*/
 ```
 
 ## License
