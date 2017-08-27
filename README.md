@@ -8,7 +8,7 @@ To work around this difference we use a mixin to provide a { loadable: {} } in t
 /* src/Test.js */
 import { h } from "hyperapp";
 
-export function Test(state, actions) {
+export function Test(props) {
   return (
     <div>{"Testing lazy-loaded component!"}</div>
   );
@@ -19,18 +19,22 @@ export function Test(state, actions) {
 import { h, app } from "hyperapp";
 import { LoadableMixin, Loadable, load } from "hyperapp-loadable";
 
-const Loading = (state, actions) => <div>{"Loading..."}</div>;
+const Loading = (props) => <div>{`Loading... look at my ${props}`}</div>;
 
 app({
   view: (state, actions) => {
     return (
       <Loadable 
-        name={"/Test"} // unique key for the result of loader to be stored under state.loadable[name]
-        loader={() => import("./Test")} // thunk which returns a promise that resolves to a stateless component
-        loading={Loading} // component to display while loading the above loader thunk...
-        defaultTime={200} // default 200ms time spent displaying loading
-        terminalTime={3000} // default 3 second error timeout
-        errorHandler={ // could be used to clear cache and retry on failures etc...
+        loaded={actions.loadable.loaded} // *REQUIRED
+        loadable={state.loadable} // *REQUIRED
+        name={"/Test"} // *REQUIRED unique key for the result of loader to be stored under state.loadable[name]
+        loader={() => import("./Test")} // *REQUIRED thunk which returns a promise that resolves to a component
+        loaderProps={({ state: state, actions: actions })} // Optional, but useful...
+        loading={Loading} // *REQUIRED component to display while loading the above loader thunk...
+        loadingProps={({ foo: "bar" })} // Optional, will be passed into your Loading component for render
+        defaultTime={200} // Optional default 200ms time spent displaying loading
+        terminalTime={3000} // Optional default 3 second error timeout
+        errorHandler={ // Optional could be used to clear cache and retry on failures etc...
           ({ name, result }) => console.error(`Loadable: ${name}, error: ${result}`)
         }
       />
