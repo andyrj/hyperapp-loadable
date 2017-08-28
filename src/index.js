@@ -24,6 +24,8 @@ export function load(props) {
     loaded({ name: name, result: result });
   }, terminalTime);
 
+  loaded({ name: name, result: "pending" });
+
   loader()
     .then(function(promised) {
       if (result == null) {
