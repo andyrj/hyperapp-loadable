@@ -17,7 +17,7 @@ export function Test(props) {
 
 ```jsx
 import { h, app } from "hyperapp";
-import { LoadableMixin, Loadable, load } from "hyperapp-loadable";
+import { loadable, Loadable, load } from "hyperapp-loadable";
 
 const Loading = (props) => <div>{`Loading... look at my ${props}`}</div>;
 
@@ -40,7 +40,7 @@ app({
       />
     );
   },
-  mixins: [LoadableMixin]
+  mixins: [loadable]
 });
 ```
 

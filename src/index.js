@@ -65,7 +65,7 @@ function merge(a, b) {
   return obj;
 }
 
-export function LoadableMixin(Emit) {
+export function loadable(Emit) {
   return {
     state: {
       loadable: {}
